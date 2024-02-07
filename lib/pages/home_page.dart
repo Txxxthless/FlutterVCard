@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_v_card/pages/scan_page.dart';
+import 'package:go_router/go_router.dart';
 
 class HomePage extends StatefulWidget {
   static const String routeName = '/';
@@ -21,7 +23,9 @@ class _HomePageState extends State<HomePage> {
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       floatingActionButton: FloatingActionButton(
-        onPressed: () {},
+        onPressed: () {
+          context.goNamed(ScanPage.routeName);
+        },
         shape: const CircleBorder(),
         child: const Icon(Icons.add),
       ),
