@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_v_card/pages/scan_page.dart';
 import 'package:flutter_v_card/providers/contact_provider.dart';
+import 'package:flutter_v_card/utils/helper_functions.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
@@ -48,6 +49,7 @@ class _HomePageState extends State<HomePage> {
             setState(() {
               selectedIndex = index;
             });
+            _fetchData();
           },
           backgroundColor: Colors.blue[100],
           items: const [
@@ -67,17 +69,74 @@ class _HomePageState extends State<HomePage> {
           itemCount: provider.contactList.length,
           itemBuilder: (context, index) {
             final contact = provider.contactList[index];
-            return ListTile(
-              title: Text(contact.name),
-              trailing: IconButton(
-                onPressed: () {},
-                icon: Icon(
-                    contact.favorite ? Icons.favorite : Icons.favorite_border),
+            return Dismissible(
+              key: UniqueKey(),
+              direction: DismissDirection.endToStart,
+              background: Container(
+                padding: const EdgeInsets.only(
+                  right: 20,
+                ),
+                alignment: FractionalOffset.centerRight,
+                color: Colors.red,
+                child: const Icon(
+                  Icons.delete,
+                  size: 25,
+                  color: Colors.white,
+                ),
+              ),
+              confirmDismiss: _showConfirmDialog,
+              onDismissed: (_) async {
+                await provider.deleteContact(contact.id);
+                showMsg(context, 'Deleted');
+              },
+              child: ListTile(
+                title: Text(contact.name),
+                trailing: IconButton(
+                  onPressed: () {
+                    provider.updateFavorite(contact);
+                  },
+                  icon: Icon(contact.favorite
+                      ? Icons.favorite
+                      : Icons.favorite_border),
+                ),
               ),
             );
           },
         ),
       ),
     );
+  }
+
+  Future<bool?> _showConfirmDialog(DismissDirection direction) {
+    return showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete Contact'),
+        content: const Text('Are you sure you want to delete this contact?'),
+        actions: [
+          OutlinedButton(
+            onPressed: () {
+              context.pop(false);
+            },
+            child: const Text('NO'),
+          ),
+          OutlinedButton(
+            onPressed: () {
+              context.pop(true);
+            },
+            child: const Text('YES'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _fetchData() {
+    if (selectedIndex == 0) {
+      Provider.of<ContactProvider>(context, listen: false).getAllContacts();
+    } else if (selectedIndex == 1) {
+      Provider.of<ContactProvider>(context, listen: false)
+          .getAllFavoriteContacts();
+    }
   }
 }
