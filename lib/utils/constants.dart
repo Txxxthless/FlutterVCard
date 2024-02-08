@@ -9,3 +9,4 @@ abstract final class ContactProperties {
 }
 
 const String hint = 'Long press and Drag each item into the appropriate box';
+const String emptyFieldErrorMsg = 'This field must not be empty';
